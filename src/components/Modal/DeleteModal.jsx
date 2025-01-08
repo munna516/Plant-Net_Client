@@ -4,7 +4,7 @@ import {
   TransitionChild,
   DialogPanel,
   DialogTitle,
-} from "@headlessui/react";
+} from "@headlessui/react";  
 import { Fragment } from "react";
 import PropTypes from "prop-types";
 const DeleteModal = ({ closeModal, isOpen, handleDelete }) => {
