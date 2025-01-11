@@ -79,7 +79,7 @@ const CustomerOrderDataRow = ({ orderData, refetch }) => {
 };
 
 CustomerOrderDataRow.propTypes = {
-  order: PropTypes.object,
+  orderData: PropTypes.object,
   refetch: PropTypes.func,
 };
 

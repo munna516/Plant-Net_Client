@@ -1,12 +1,48 @@
 import PropTypes from "prop-types";
 import { useState } from "react";
 import DeleteModal from "../../Modal/DeleteModal";
+import { axiosSecure } from "../../../hooks/useAxiosSecure";
+import toast from "react-hot-toast";
 const SellerOrderDataRow = ({ orderData, refetch }) => {
   let [isOpen, setIsOpen] = useState(false);
   const closeModal = () => setIsOpen(false);
   const { name, price, customer, quantity, address, _id, status, plantId } =
     orderData || {};
+  // Handle order
+  const handleDelete = async () => {
+    try {
+      // Fetch
+      await axiosSecure.delete(`${import.meta.env.VITE_API_URL}/orders/${_id}`);
+      await axiosSecure.patch(`/plants/quantity/${plantId}`, {
+        quantityToUpdate: quantity,
+        status: "increase",
+      });
+      toast.success("Order cancelld");
+      refetch();
+    } catch (err) {
+      toast.error(err?.response?.data);
+    } finally {
+      closeModal();
+    }
+  };
 
+  const handleStatus = async (newStatus) => {
+    if (status === newStatus) return;
+    // Patch Request to server
+    try {
+      // Fetch
+    
+      await axiosSecure.patch(`/orders/${_id}`, {
+        status: newStatus
+      });
+      toast.success("Status Updated");
+      refetch();
+    } catch (err) {
+      toast.error(err?.response?.data);
+    } finally {
+      closeModal();
+    }
+  };
   return (
     <tr>
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -32,6 +68,8 @@ const SellerOrderDataRow = ({ orderData, refetch }) => {
         <div className="flex items-center gap-2">
           <select
             required
+            defaultValue={status}
+            onChange={(e) => handleStatus(e.target.value)}
             className="p-1 border-2 border-lime-300 focus:outline-lime-500 rounded-md text-gray-900 whitespace-no-wrap bg-white"
             name="category"
           >
@@ -50,14 +88,18 @@ const SellerOrderDataRow = ({ orderData, refetch }) => {
             <span className="relative">Cancel</span>
           </button>
         </div>
-        <DeleteModal isOpen={isOpen} closeModal={closeModal} />
+        <DeleteModal
+          handleDelete={handleDelete}
+          isOpen={isOpen}
+          closeModal={closeModal}
+        />
       </td>
     </tr>
   );
 };
 
 SellerOrderDataRow.propTypes = {
-  order: PropTypes.object,
+  orderData: PropTypes.object,
   refetch: PropTypes.func,
 };
 
